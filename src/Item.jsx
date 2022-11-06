@@ -1,62 +1,58 @@
-import React, { Component } from 'react'
-
-export default class Item extends Component {
+import React,{Component} from "react";
+export default class Item extends Component{
     constructor(){
         super();
         this.state={
-            inEdit:false,
+            inEdit:false
         }
         this.inputs=React.createRef();
     }
-    handleEdit=()=>{
+    changeEdit=()=>{
         let {todo}=this.props;
-        this.setState({
-            inEdit:true
-        },()=>{
-            this.inputs.current.value=todo.title;
+        this.setState({inEdit:true},()=>{
+            this.inputs.current.value=todo.value;
             this.inputs.current.focus();
-        })
+        });
+        
+        
     }
-    todoUpdate=()=>{
-        let {todo,editTodo,delTodo}=this.props;
-        todo.title=this.inputs.current.value.trim();
-        if(todo.title===""){
+    updataTodo=(e)=>{
+        let {editTodo,todo,delTodo}=this.props;
+        todo.value=e.target.value.trim();
+        if(e.target.value.trim()===""){
             delTodo(todo);
-            return;
+        }else{
+            editTodo(todo);
         }
-        editTodo(todo);
         this.setState({
             inEdit:false
         })
     }
-    render() {
-        let {todo,delTodo,changeCompleted,editTodo}=this.props;
+    render(){
+        let {todo,delTodo,changeCompleted}=this.props;
+        let {changeEdit,inputs,updataTodo}=this;
         let {inEdit}=this.state;
-        let {inputs,handleEdit,todoUpdate}=this;
         let completed=todo.hasCompleted?"completed":"";
         let editing=inEdit?completed+" editing":completed;
-        return (
+        return(
             <li className={editing}>
-                <div className='view'>
-                    <input type="checkbox" className="toggle" onChange={()=>{
-                        changeCompleted(todo)}} 
-                    checked={todo.hasCompleted}/>
-                    <label onDoubleClick={handleEdit}>{todo.title}</label>
-                    <button className='destroy' onClick={()=>delTodo(todo)}></button>
+                <div className="view">
+                    <input type="checkbox" className="toggle" onChange={()=>changeCompleted(todo)} checked={todo.hasCompleted}/>
+                    <label onDoubleClick={changeEdit}>{todo.value}</label>
+                    <button className="destroy" onClick={()=>delTodo(todo)}></button>
                 </div>
-                <input type="text" className="edit" ref={inputs} onBlur={inEdit?todoUpdate:null} 
+                <input type="text" className="edit" ref={inputs} onBlur={inEdit?updataTodo:null} 
                 onKeyUp={(e)=>{
                     if(e.key==="Escape"){
                         this.setState({
                             inEdit:false
-                        })
+                        });
                         return;
                     }
-                    if(e.key!=="Enter")return;
-                    todoUpdate();
+                    else if(e.key!=="Enter")return;
+                    updataTodo(e);
                 }}/>
             </li>
         )
     }
 }
- 
