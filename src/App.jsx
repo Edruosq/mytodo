@@ -1,9 +1,9 @@
 import React,{Component} from "react";
-import "@/css/index";
+import '@/css/index';
 import Item from "./Item";
 import Footer from "./Footer";
 export default class App extends Component{
-    constructor(){
+    constructor() {
         super();
         this.state={
             todoDatas:[],
@@ -15,10 +15,10 @@ export default class App extends Component{
     }
     //添加todo
     addTodo=(e)=>{
-        if(e.key!=="Enter") return ;
-        if(e.target.value.trim()===""){
+        if (e.key!=="Enter") return;
+        if (e.target.value.trim()===""){
             e.target.value="";
-            return ;
+            return;
         }
         let {todoDatas,todoNum}=this.state;
         let todo={};
@@ -42,18 +42,18 @@ export default class App extends Component{
             }
             return true;
         })
+        this.setState({todoDatas,todoNum});
         if(todoDatas.length===0){
             this.check.current.checked=false;
         }
-        this.setState({todoDatas,todoNum});
     }
-    //改变hasCompleted状态
+    //改变完成状态
     changeCompleted=(todo)=>{
         let {todoDatas,todoNum}=this.state;
         todoDatas=todoDatas.map(value=>{
-            if(todo.id===value.id){
+            if (todo.id === value.id) {
                 value.hasCompleted=!todo.hasCompleted;
-                if(todo.hasCompleted){
+                if (todo.hasCompleted){
                     todoNum--;
                 }else{
                     todoNum++;
@@ -61,21 +61,25 @@ export default class App extends Component{
             }
             return value;
         })
-       this.check.current.checked=todoNum===0?true:false;
-        this.setState({todoDatas,todoNum});
+        this.setState({todoDatas, todoNum});
+        this.check.current.checked=todoNum===0?true:false;
     }
     //编辑todo
     editTodo=(todo)=>{
-        let {todoDatas}=this.state;
+        let {todoDatas,todoNum}=this.state;
         todoDatas=todoDatas.map(value=>{
-            if(todo.id===value.id){
+            if (todo.id === value.id) {
                 value.value=todo.value;
             }
             return value;
         })
-        this.setState({todoDatas});
+        this.setState({todoDatas,todoNum});
     }
-    //清除已完成
+    //过滤todo
+    filterTodo=(view)=>{
+        this.setState({view});
+    }
+    //清除已完成的todo
     clearCompleted=()=>{
         let {todoDatas}=this.state;
         todoDatas=todoDatas.filter(value=>{
@@ -87,38 +91,32 @@ export default class App extends Component{
         if(todoDatas.length===0){
             this.check.current.checked=false;
         }
-        this.setState({todoDatas});
-    }
-    //过滤
-    todoFilter=(view)=>{
-        this.setState({view});
+        this.setState({todoDatas})
     }
     //全选全不选
     isAll=()=>{
-        let {todoDatas,todoNum,flag}=this.state;
-        flag=!flag;
+        let {todoDatas, todoNum, flag}=this.state;
+        flag=!flag
         if(flag){
-        todoDatas=todoDatas.map(value=>{
-           
+            todoDatas=todoDatas.map(value=>{
                 value.hasCompleted=true;
                 return value;
-        })
-               todoNum=0; 
-            }else{
-                todoDatas=todoDatas.map(value=>{
-           
-                    value.hasCompleted=false;
-                    return value;
             })
-                   todoNum=todoDatas.length; 
-            }
-      this.setState({todoDatas,todoNum,flag});
+            todoNum=0;
+        }else{
+            todoDatas=todoDatas.map(value=>{
+                value.hasCompleted=false;
+                return value;
+            })
+            todoNum=todoDatas.length;
+        }
+        this.setState({todoDatas,todoNum,flag});
     }
     render(){
-        let {addTodo,delTodo,changeCompleted,check,editTodo,todoFilter,clearCompleted,isAll}=this;
         let {todoDatas,todoNum,view}=this.state;
-        let filterTodo=todoDatas.filter(value=>{
-            switch(view){
+        let {addTodo,check,isAll}=this;
+        let filterTodos=todoDatas.filter(value=>{
+            switch (view){
                 case "all":
                     return true;
                 case "active":
@@ -129,26 +127,26 @@ export default class App extends Component{
                     return true;
             }
         })
-        let items=filterTodo.map(todo=>{
-             return (
-             <Item todo={todo} key={todo.id} delTodo={delTodo} changeCompleted={changeCompleted} editTodo={editTodo}/>
-             )
+       let items=filterTodos.map(todo=>{
+           return(
+               <Item todo={todo} key={todo.id} {...this} {...this.state}/>
+           )
         })
         return (
             <section className="todoapp">
                 <header className="header">
                     <h1>Todos</h1>
-                    <input type="text" className="new-todo" placeholder="What needs to be done?" onKeyUp={addTodo}/>
+                    <input type="text" className="new-todo" placeholder="What needs to be done?" onKeyUp={addTodo} />
                 </header>
                 <section className="main">
-                    <input type="checkbox" className="toggle-all"  id="toggle-all" ref={check}/>
+                    <input type="checkbox" className="toggle-all" id="toggle-all" ref={check}/>
                     <label htmlFor="toggle-all" onClick={isAll}></label>
                     <ul className="todo-list">
                         {items}
                     </ul>
                 </section>
-                <Footer todoDatas={todoDatas} todoNum={todoNum} view={view} todoFilter={todoFilter} clearCompleted={clearCompleted}></Footer>
+                <Footer {...this} {...this.state}/>
             </section>
-        )
+        );
     }
 }
