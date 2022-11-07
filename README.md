@@ -2,4 +2,4 @@
 
 ### 样式展示：
 
-![展示](./src/img.png)
+![展示](./src/img/img.png)
